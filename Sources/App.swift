@@ -1,15 +1,11 @@
 import SwiftUI
 import AppFactoryKit
-import AppFactoryKitRevenueCat
 
 // ─────────────────────────────────────────────────────────────────────────
 // Doc Scanner — production configuration.
-// RevenueCat public SDK keys are designed to ship inside the app (they are not
-// secret), so this is safe to commit. Until a real key is set, the app runs on a
-// mock provider so the paywall can be previewed without a store connection.
+// Payments use native StoreKit 2 (no third-party SDK, no API key). Products are
+// read from App Store Connect by identifier.
 // ─────────────────────────────────────────────────────────────────────────
-
-private let revenueCatKey = "appl_REPLACE_ME"
 
 // App Store Connect product identifiers (alphanumerics, "." and "_" only — no hyphens).
 private enum Product {
@@ -20,9 +16,9 @@ private enum Product {
 @MainActor
 enum DocScannerFactory {
     static func make() -> AppFactory {
-        let provider: PurchaseProvider = revenueCatKey == "appl_REPLACE_ME"
-            ? MockPurchaseProvider()
-            : RevenueCatPurchaseProvider(apiKey: revenueCatKey, entitlementID: "premium")
+        let provider: PurchaseProvider = StoreKit2PurchaseProvider(
+            productIDs: [Product.yearly, Product.weekly]
+        )
 
         let config = AppFactoryConfiguration(
             appName: "Doc Scanner",

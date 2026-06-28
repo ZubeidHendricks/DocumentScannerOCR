@@ -3,14 +3,20 @@
 Production-hardened: app icon, `PrivacyInfo.xcprivacy`, App Store metadata
 (`fastlane/metadata`), hosted privacy/terms (`docs/`), and Fastlane lanes.
 
-## What I still need from you (4 things)
+## Payments: native StoreKit 2 (no RevenueCat)
+
+This app uses Apple's StoreKit 2 directly — **no RevenueCat account or key needed.**
+Products are read from App Store Connect by identifier
+(`docscanner_pro_yearly`, `docscanner_pro_weekly`).
+
+## What I still need from you (2 things)
 
 | # | Value | Where to get it |
 |---|-------|-----------------|
-| 1 | **RevenueCat public SDK key** (`appl_…`) | app.revenuecat.com → your project → **Project Settings → API Keys** → *Public app-specific API key* for the iOS app. (The integrations URL you sent doesn't show it — it's under API Keys.) |
-| 2 | **Apple Team ID** (10 chars) | developer.apple.com → Account → **Membership details** |
-| 3 | **Apple Issuer ID** (UUID) | App Store Connect → Users and Access → **Integrations** (top of the API Keys list) |
-| 4 | **Which .p8 key** to use | One of `~/Downloads/AuthKey_*.p8`. The filename’s code is the Key ID. |
+| 1 | **Apple Team ID** (10 chars) | developer.apple.com → Account → **Membership details** |
+| 2 | **Apple Issuer ID** (UUID) | App Store Connect → Users and Access → **Integrations** (top of the API Keys list) |
+
+The **Key ID** is the code in your `~/Downloads/AuthKey_*.p8` filename — tell me which to use.
 
 Once I have these I:
 1. paste the RevenueCat key into `Sources/App.swift` (`revenueCatKey`),

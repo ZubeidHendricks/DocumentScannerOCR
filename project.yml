@@ -20,8 +20,6 @@ targets:
     dependencies:
       - package: AppFactoryKit
         product: AppFactoryKit
-      - package: AppFactoryKit
-        product: AppFactoryKitRevenueCat
     info:
       path: Sources/Info.plist
       properties:
