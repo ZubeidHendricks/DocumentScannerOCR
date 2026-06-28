@@ -1,0 +1,31 @@
+name: TestFlight
+
+# Manual trigger, or push a v* tag to ship a build.
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+jobs:
+  beta:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+
+      - name: Build and upload to TestFlight
+        run: bundle exec fastlane beta
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_CONTENT: ${{ secrets.ASC_KEY_CONTENT }}
+          MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}

@@ -1,0 +1,3 @@
+app_identifier("com.zubeid.documentscanner")
+# Auth is via App Store Connect API key (see fastlane/Fastfile), so apple_id and
+# team_id are not required here.
