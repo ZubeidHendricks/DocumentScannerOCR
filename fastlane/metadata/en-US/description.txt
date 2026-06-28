@@ -1,0 +1,24 @@
+Doc Scanner turns your iPhone into a pocket scanner. Point it at any document, receipt, form or note and get a crisp, perfectly-cropped PDF in seconds — edges are detected and straightened automatically.
+
+SCAN ANYTHING
+• Automatic edge detection and perspective correction
+• Multi-page documents in one tap
+• Import existing photos and turn them into PDFs
+
+EXTRACT THE TEXT
+• On-device OCR pulls editable, searchable text out of any scan
+• Copy text straight to your clipboard
+• Everything runs on your device — your documents never leave your phone
+
+SHARE & EXPORT
+• Export clean multi-page PDFs
+• Send to Mail, Messages, Files, or any app
+
+DOC SCANNER PRO
+Upgrade to Pro for unlimited pages, OCR text extraction, and watermark-free exports. Pro is an auto-renewing subscription; you can cancel anytime in your Apple ID settings.
+
+PRIVACY FIRST
+Scanning, OCR and PDF generation all happen on-device. Your documents are never uploaded.
+
+Terms: https://zubeidhendricks.github.io/DocumentScannerOCR/terms.html
+Privacy: https://zubeidhendricks.github.io/DocumentScannerOCR/privacy.html

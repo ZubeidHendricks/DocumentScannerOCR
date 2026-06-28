@@ -1,46 +1,85 @@
 default_platform(:ios)
 
+APP_ID   = "com.zubeid.documentscanner"
+APP_NAME = "Doc Scanner: PDF & OCR"
+SCHEME   = "DocumentScannerOCR"
+PROJECT  = "DocumentScannerOCR.xcodeproj"
+
+# App Store Connect API key auth. Set ASC_KEY_ID + ASC_ISSUER_ID and either
+# ASC_KEY_PATH (local .p8) or ASC_KEY_CONTENT (base64, for CI).
+def asc_key
+  app_store_connect_api_key(
+    key_id: ENV.fetch("ASC_KEY_ID"),
+    issuer_id: ENV.fetch("ASC_ISSUER_ID"),
+    key_filepath: ENV["ASC_KEY_PATH"],
+    key_content: ENV["ASC_KEY_CONTENT"],
+    is_key_content_base64: true
+  )
+end
+
+def regenerate
+  sh("cd .. && xcodegen generate")
+end
+
+# Signing: use a private `match` repo on CI; locally, Xcode automatic signing
+# with -allowProvisioningUpdates (set DEVELOPMENT_TEAM).
+def sign_if_needed
+  if ENV["MATCH_GIT_URL"]
+    match(type: "appstore", app_identifier: APP_ID,
+          git_url: ENV.fetch("MATCH_GIT_URL"), readonly: true, api_key: asc_key)
+  end
+end
+
+def build_release
+  build_number = ENV["GITHUB_RUN_NUMBER"] || Time.now.strftime("%Y%m%d%H%M")
+  xcargs = "CURRENT_PROJECT_VERSION=#{build_number}"
+  if (team = ENV["DEVELOPMENT_TEAM"])
+    xcargs += " DEVELOPMENT_TEAM=#{team} -allowProvisioningUpdates"
+  end
+  build_app(
+    project: PROJECT,
+    scheme: SCHEME,
+    export_method: "app-store",
+    xcargs: xcargs,
+    output_directory: "build",
+    clean: true
+  )
+end
+
 platform :ios do
-  desc "Build DocumentScannerOCR and upload to TestFlight"
+  desc "Regenerate the Xcode project from project.yml"
+  lane :gen do
+    regenerate
+  end
+
+  desc "Register the bundle id + create the App Store Connect app record"
+  lane :create_app do
+    produce(app_identifier: APP_ID, app_name: APP_NAME, api_key: asc_key)
+  end
+
+  desc "Build and upload to TestFlight"
   lane :beta do
     setup_ci if ENV["CI"]
+    key = asc_key
+    regenerate
+    sign_if_needed
+    build_release
+    upload_to_testflight(api_key: key, skip_waiting_for_build_processing: true)
+  end
 
-    api_key = app_store_connect_api_key(
-      key_id: ENV.fetch("ASC_KEY_ID"),
-      issuer_id: ENV.fetch("ASC_ISSUER_ID"),
-      key_content: ENV.fetch("ASC_KEY_CONTENT"),
-      is_key_content_base64: true
-    )
-
-    # Materialize the Xcode project from project.yml (project is gitignored).
-    sh("cd .. && xcodegen generate")
-
-    # Pull the App Store distribution cert + provisioning profile from your
-    # private `match` repo. Set MATCH_GIT_URL + MATCH_PASSWORD to enable.
-    if ENV["MATCH_GIT_URL"]
-      match(
-        type: "appstore",
-        app_identifier: "com.zubeid.documentscanner",
-        git_url: ENV.fetch("MATCH_GIT_URL"),
-        readonly: true,
-        api_key: api_key
-      )
-    end
-
-    build_number = ENV["GITHUB_RUN_NUMBER"] || Time.now.strftime("%Y%m%d%H%M")
-
-    build_app(
-      project: "DocumentScannerOCR.xcodeproj",
-      scheme: "DocumentScannerOCR",
-      export_method: "app-store",
-      xcargs: "CURRENT_PROJECT_VERSION=#{build_number}",
-      output_directory: "build",
-      clean: true
-    )
-
-    upload_to_testflight(
-      api_key: api_key,
-      skip_waiting_for_build_processing: true
+  desc "Build, upload metadata + binary, and submit for App Store review"
+  lane :release do
+    key = asc_key
+    regenerate
+    sign_if_needed
+    build_release
+    upload_to_app_store(
+      api_key: key,
+      submit_for_review: true,
+      automatic_release: true,
+      force: true,                       # skip the HTML metadata preview prompt
+      precheck_include_in_app_purchases: false,
+      submission_information: { add_id_info_uses_idfa: false }
     )
   end
 end

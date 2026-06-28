@@ -1,0 +1,1 @@
+Initial release of Doc Scanner: scan documents to PDF, extract text with on-device OCR, and share anywhere.
